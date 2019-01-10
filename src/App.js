@@ -35,13 +35,6 @@ class App extends Component {
     })
   }
 
-  handleAuthChange = (ev) => {
-    firebase.auth().onAuthStateChanged((user) => {
-      console.log('user: ' + user)
-      this.setState({ user })
-    })
-  }
-
   onEmailChange = (ev) => {
     this.setState({ email: ev.target.value })
   }
@@ -55,11 +48,12 @@ class App extends Component {
       .auth()
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => {
-        this.handleAuthChange()
+        this.listenMessages()
       })
       .catch((e) => {
         console.log(e)
       })
+    ev.preventDefault()
   }
 
   handleLogIn = (ev) => {
@@ -69,7 +63,7 @@ class App extends Component {
       .auth()
       .signInWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => {
-        this.handleAuthChange()
+        this.listenMessages()
       })
     ev.preventDefault()
   }
@@ -79,8 +73,8 @@ class App extends Component {
       .auth()
       .signOut()
       .then(() => {
-        this.handleAuthChange()
-        this.setState({ messages: [] })
+        // this.handleAuthChange()
+        this.setState({ email: '', password: '', messages: [], user: null })
       })
   }
 
@@ -121,40 +115,49 @@ class App extends Component {
     })
   }
 
-  render() {
-    return (
-      <div className="App">
-        React Chat App
-        <div className="Authentication">
-          {!this.state.user ? (
-            <form>
-              <input
-                type="text"
-                placeholder="email"
-                onChange={this.onEmailChange}
-                value={this.state.email}
-              />
-              <input
-                type="text"
-                placeholder="password"
-                onChange={this.onPasswordChange}
-                value={this.state.password}
-              />
-              <button className="app_button" onClick={this.handleSignUp}>
-                Sign Up
-              </button>
-              <button className="app__button" onClick={this.handleLogIn}>
-                Log In
-              </button>
-            </form>
-          ) : (
-            <button className="app__button" onClick={this.handleLogOut}>
-              Logout
-            </button>
-          )}
-        </div>
-        {/* <MessageField /> */}
-        <div>
+  displayUserInfo() {
+    if (!this.state.user) {
+      return (
+        <form>
+          <input
+            type="text"
+            placeholder="email"
+            onChange={this.onEmailChange}
+            value={this.state.email}
+            required
+          />
+          <input
+            type="password"
+            placeholder="password"
+            onChange={this.onPasswordChange}
+            value={this.state.password}
+            required
+            title="atleast 6 chars"
+          />
+          <button className="app__button" onClick={this.handleLogIn}>
+            Log In
+          </button>
+          <button className="app_button" onClick={this.handleSignUp}>
+            Sign Up
+          </button>
+        </form>
+      )
+    } else {
+      return (
+        <span>
+          {'user: ' + this.state.user.email}
+          <button className="app__button" onClick={this.handleLogOut}>
+            Logout
+          </button>
+        </span>
+      )
+    }
+  }
+
+  displayMessages() {
+    if (this.state.user)
+      return (
+        <span>
           {this.state.messages.map((ele, idx) => {
             return (
               <MessageEntry
@@ -166,8 +169,18 @@ class App extends Component {
               />
             )
           })}
-        </div>
-        <FormInput user={this.state.user} onInputSubmit={this.addMessage} />
+          <FormInput user={this.state.user} onInputSubmit={this.addMessage} />
+        </span>
+      )
+  }
+
+  render() {
+    return (
+      <div className="App">
+        React Chat App
+        <div className="Authentication">{this.displayUserInfo()}</div>
+        <br />
+        <div>{this.displayMessages()}</div>
       </div>
     )
   }

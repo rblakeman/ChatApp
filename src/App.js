@@ -177,7 +177,13 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        React Chat App
+        React Chat App{' '}
+        <a
+          style={{ color: 'blue' }}
+          href="https://github.com/rblakeman/ChatApp"
+        >
+          GitHub Repo
+        </a>
         <div className="Authentication">{this.displayUserInfo()}</div>
         <br />
         <div>{this.displayMessages()}</div>

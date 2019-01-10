@@ -14,14 +14,14 @@ export default class FormInput extends Component {
     super(props)
 
     this.state = {
-      userName: 'User',
+      email: 'Email',
       value: ''
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.user) {
-      this.setState({ userName: nextProps.user.displayName })
+      this.setState({ email: nextProps.user.email })
     }
   }
 
@@ -31,10 +31,9 @@ export default class FormInput extends Component {
 
   submitChange = (ev) => {
     let currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS)
-    console.log(currTime)
     let newMessage = {
       timestamp: currTime,
-      userName: this.state.userName,
+      email: this.state.email,
       value: this.state.value
     }
     if (this.state.value) this.props.onInputSubmit(newMessage)

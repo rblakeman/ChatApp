@@ -13,6 +13,10 @@ export default class MessageEntry extends Component {
     this.setState({ editing: true })
   }
 
+  handleDeleteButton = (ev) => {
+    this.props.onDelete(this.props.message.uid)
+  }
+
   handleConfirmButton = (ev) => {
     this.setState({ editing: false })
     let updatedMessage = {
@@ -24,8 +28,8 @@ export default class MessageEntry extends Component {
     if (this.state.message) this.props.onEdit(updatedMessage) //<-- no id
   }
 
-  handleDeleteButton = (ev) => {
-    this.props.onDelete(this.props.message.uid)
+  handleCancelButton = (ev) => {
+    this.setState({ editing: false, message: this.props.message.value })
   }
 
   handleTextEdit = (ev) => {
@@ -49,20 +53,22 @@ export default class MessageEntry extends Component {
   }
 
   buttons() {
-    if (!this.state.editing) {
-      return (
-        <span>
-          <button onClick={this.handleEditButton}>edit</button>
-          <button onClick={this.handleDeleteButton}>delete</button>
-        </span>
-      )
-    } else {
-      return (
-        <span>
-          <button onClick={this.handleConfirmButton}>confirm</button>
-        </span>
-      )
-    }
+    if (this.props.user === this.props.message.email)
+      if (!this.state.editing) {
+        return (
+          <span>
+            <button onClick={this.handleEditButton}>edit</button>
+            <button onClick={this.handleDeleteButton}>delete</button>
+          </span>
+        )
+      } else {
+        return (
+          <span>
+            <button onClick={this.handleConfirmButton}>confirm</button>
+            <button onClick={this.handleCancelButton}>cancel</button>
+          </span>
+        )
+      }
   }
 
   render() {

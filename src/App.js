@@ -54,12 +54,11 @@ class App extends Component {
     firebase
       .auth()
       .createUserWithEmailAndPassword(this.state.email, this.state.password)
-      .then((ev) => {
+      .then(() => {
         this.handleAuthChange()
       })
       .catch((e) => {
         console.log(e)
-        ev.preventDefault()
       })
   }
 
@@ -69,7 +68,7 @@ class App extends Component {
     firebase
       .auth()
       .signInWithEmailAndPassword(this.state.email, this.state.password)
-      .then((ev) => {
+      .then(() => {
         this.handleAuthChange()
       })
     ev.preventDefault()
@@ -79,8 +78,9 @@ class App extends Component {
     firebase
       .auth()
       .signOut()
-      .then((ev) => {
+      .then(() => {
         this.handleAuthChange()
+        this.setState({ messages: [] })
       })
   }
 
@@ -162,6 +162,7 @@ class App extends Component {
                 onDelete={this.deleteMessage}
                 message={ele}
                 key={idx}
+                user={this.state.user.email}
               />
             )
           })}

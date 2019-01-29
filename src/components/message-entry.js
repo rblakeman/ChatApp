@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 
-export default class MessageEntry extends Component {
+export default class MessageEntry extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
@@ -74,7 +74,7 @@ export default class MessageEntry extends Component {
   render() {
     // console.log(this.props.message)
     return (
-      <div>
+      <div key={this.props.uid}>
         {this.props.message.email + ' said: '}
         {this.editTextField()}
         {' on ' + this.props.message.timestamp}

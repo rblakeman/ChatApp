@@ -26,7 +26,8 @@ class App extends Component {
       .database()
       .ref()
       .child('messages')
-    this.listenMessages()
+
+    this.listenMessages() //unnecessary?
   }
 
   componentDidMount() {
@@ -105,11 +106,12 @@ class App extends Component {
   }
 
   listenMessages() {
-    this.messageRef.on('value', (message) => {
+    this.messageRef.on('child_added', (message) => {
+      console.log(message.val())
       //limitToLast(10)
       if (message.val()) {
         this.setState({
-          messages: Object.values(message.val())
+          messages: [...this.state.messages, message.val()] //Object.values(message.val())
         })
       }
     })
@@ -121,14 +123,14 @@ class App extends Component {
         <form>
           <input
             type="text"
-            placeholder="email"
+            placeholder="email (a@a.com)"
             onChange={this.onEmailChange}
             value={this.state.email}
             required
           />
           <input
             type="password"
-            placeholder="password"
+            placeholder="password (6 or more chars)"
             onChange={this.onPasswordChange}
             value={this.state.password}
             required
@@ -157,7 +159,7 @@ class App extends Component {
   displayMessages() {
     if (this.state.user)
       return (
-        <span>
+        <span key={'displayMessages'}>
           {this.state.messages.map((ele, idx) => {
             return (
               <MessageEntry

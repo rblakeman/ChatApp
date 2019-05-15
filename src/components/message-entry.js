@@ -1,4 +1,25 @@
-import React, { Component, PureComponent } from 'react'
+import React, { PureComponent } from 'react'
+
+const styles = {
+  container: {
+    borderRadius: '20%',
+    padding: '10px',
+    margin: '5px',
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: '300px'
+  },
+  blue: {
+    backgroundColor: 'blue',
+    color: 'white',
+    textAlign: 'right'
+  },
+  green: {
+    backgroundColor: 'green',
+    color: 'white',
+    textAlign: 'left'
+  }
+}
 
 export default class MessageEntry extends PureComponent {
   constructor(props) {
@@ -74,11 +95,22 @@ export default class MessageEntry extends PureComponent {
   render() {
     // console.log(this.props.message)
     return (
-      <div key={this.props.uid}>
-        {this.props.message.email + ' said: '}
-        {this.editTextField()}
-        {' on ' + this.props.message.timestamp}
-        {this.buttons()}
+      <div
+        style={
+          this.props.message.email === this.props.user
+            ? { ...styles.blue, ...styles.container }
+            : { ...styles.green, ...styles.container }
+        }
+        key={this.props.uid}
+      >
+        <div>
+          {this.props.message.email + ' said: '}
+          {this.editTextField()}
+        </div>
+        <div>
+          {this.buttons()}
+          {this.props.message.timestamp}
+        </div>
       </div>
     )
   }

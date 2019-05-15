@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import firebase from 'firebase'
+import _ from 'lodash'
+// import moment from 'moment'
 
 import MessageEntry from './components/message-entry'
 import FormInput from './components/form-input'
 
 const firebaseConfig = {
-  ***REMOVED***
-  ***REMOVED***
-  ***REMOVED***
-  ***REMOVED***
-  ***REMOVED***
-  ***REMOVED***
+  apiKey: process.env.REACT_APP_FIREBASE_apiKey,
+  authDomain: process.env.REACT_APP_FIREBASE_authDomain,
+  databaseURL: process.env.REACT_APP_FIREBASE_databaseURL,
+  projectId: process.env.REACT_APP_FIREBASE_projectId,
+  storageBucket: process.env.REACT_APP_FIREBASE_storageBucket,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_messagingSenderId
 }
 firebase.initializeApp(firebaseConfig)
 
@@ -107,13 +109,28 @@ class App extends Component {
 
   listenMessages() {
     this.messageRef.on('child_added', (message) => {
-      console.log(message.val())
       //limitToLast(10)
       if (message.val()) {
         this.setState({
           messages: [...this.state.messages, message.val()] //Object.values(message.val())
         })
       }
+    })
+    this.messageRef.on('child_changed', (message) => {
+      let idx = _.findIndex(this.state.messages, { uid: message.val().uid })
+      let messageList = this.state.messages
+      messageList.splice(idx, 1, message.val())
+      this.setState({
+        messages: messageList
+      })
+    })
+    this.messageRef.on('child_removed', (message) => {
+      let idx = _.findIndex(this.state.messages, { uid: message.val().uid })
+      let messageList = this.state.messages
+      messageList.splice(idx, 1)
+      this.setState({
+        messages: messageList
+      })
     })
   }
 
@@ -159,7 +176,7 @@ class App extends Component {
   displayMessages() {
     if (this.state.user)
       return (
-        <span key={'displayMessages'}>
+        <div key={'displayMessages'}>
           {this.state.messages.map((ele, idx) => {
             return (
               <MessageEntry
@@ -172,13 +189,18 @@ class App extends Component {
             )
           })}
           <FormInput user={this.state.user} onInputSubmit={this.addMessage} />
-        </span>
+        </div>
       )
   }
 
   render() {
     return (
-      <div className="App">
+      <div
+        className="App"
+        style={{
+          backgroundColor: '#EEE'
+        }}
+      >
         React Chat App{' '}
         <a
           style={{ color: 'blue' }}
@@ -188,7 +210,15 @@ class App extends Component {
         </a>
         <div className="Authentication">{this.displayUserInfo()}</div>
         <br />
-        <div>{this.displayMessages()}</div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          {this.displayMessages()}
+        </div>
       </div>
     )
   }

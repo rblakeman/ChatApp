@@ -1,3 +1,7 @@
 html {
-  background-color: #eee;
+    background-color: #222;
+}
+
+.user-info {
+    color: #fff !important;
 }

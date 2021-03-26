@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import firebase from 'firebase'
-import _ from 'lodash'
+import React, { Component } from 'react';
+import firebase from 'firebase';
+import _ from 'lodash';
 
-import MessageEntry from './components/message-entry'
-import FormInput from './components/form-input'
+import MessageEntry from './components/message-entry';
+import FormInput from './components/form-input';
 
 const firebaseConfig = {
     apiKey: `${process.env.REACT_APP_FIREBASE_apiKey}`,
@@ -12,37 +12,37 @@ const firebaseConfig = {
     projectId: `${process.env.REACT_APP_FIREBASE_projectId}`,
     storageBucket: `${process.env.REACT_APP_FIREBASE_storageBucket}`,
     messagingSenderId: `${process.env.REACT_APP_FIREBASE_messagingSenderId}`
-}
-firebase.initializeApp(firebaseConfig)
+};
+firebase.initializeApp(firebaseConfig);
 
 class App extends Component {
     constructor(props) {
-        super(props)
-        this.addMessage = this.addMessage.bind(this)
-        this.updateMessage = this.updateMessage.bind(this)
-        this.deleteMessage = this.deleteMessage.bind(this)
-        this.state = { email: '', password: '', messages: [], user: null }
+        super(props);
+        this.addMessage = this.addMessage.bind(this);
+        this.updateMessage = this.updateMessage.bind(this);
+        this.deleteMessage = this.deleteMessage.bind(this);
+        this.state = { email: '', password: '', messages: [], user: null };
 
         this.messageRef = firebase
             .database()
             .ref()
-            .child('messages')
+            .child('messages');
 
-        this.listenMessages() //unnecessary?
+        this.listenMessages(); //unnecessary?
     }
 
     componentDidMount() {
         firebase.auth().onAuthStateChanged((user) => {
-            this.setState({ user })
-        })
+            this.setState({ user });
+        });
     }
 
     onEmailChange = (ev) => {
-        this.setState({ email: ev.target.value })
+        this.setState({ email: ev.target.value });
     }
 
     onPasswordChange = (ev) => {
-        this.setState({ password: ev.target.value })
+        this.setState({ password: ev.target.value });
     }
 
     handleSignUp = (ev) => {
@@ -50,12 +50,12 @@ class App extends Component {
             .auth()
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(() => {
-                this.listenMessages()
+                this.listenMessages();
             })
             .catch((e) => {
-                console.log(e)
-            })
-        ev.preventDefault()
+                console.log(e);
+            });
+        ev.preventDefault();
     }
 
     handleLogIn = (ev) => {
@@ -65,9 +65,9 @@ class App extends Component {
             .auth()
             .signInWithEmailAndPassword(this.state.email, this.state.password)
             .then(() => {
-                this.listenMessages()
-            })
-        ev.preventDefault()
+                this.listenMessages();
+            });
+        ev.preventDefault();
     }
 
     handleLogOut = (ev) => {
@@ -76,19 +76,19 @@ class App extends Component {
             .signOut()
             .then(() => {
                 // this.handleAuthChange()
-                this.setState({ email: '', password: '', messages: [], user: null })
-            })
+                this.setState({ email: '', password: '', messages: [], user: null });
+            });
     }
 
     addMessage(newMessage) {
-        let newPush = this.messageRef.push()
+        let newPush = this.messageRef.push();
         newMessage = {
             uid: newPush.key,
             timestamp: newMessage.timestamp,
             email: newMessage.email,
             value: newMessage.value
-        }
-        newPush.set(newMessage)
+        };
+        newPush.set(newMessage);
         // this.messageRef.push(newMessage)
     }
 
@@ -96,14 +96,14 @@ class App extends Component {
         firebase
             .database()
             .ref('messages/' + updatedMessage.uid)
-            .set(updatedMessage)
+            .set(updatedMessage);
     }
 
     deleteMessage(messageId) {
         firebase
             .database()
             .ref('messages/' + messageId)
-            .remove()
+            .remove();
     }
 
     listenMessages() {
@@ -112,25 +112,25 @@ class App extends Component {
             if (message.val()) {
                 this.setState({
                     messages: [...this.state.messages, message.val()] //Object.values(message.val())
-                })
+                });
             }
-        })
+        });
         this.messageRef.on('child_changed', (message) => {
-            let idx = _.findIndex(this.state.messages, { uid: message.val().uid })
-            let messageList = this.state.messages
-            messageList.splice(idx, 1, message.val())
+            let idx = _.findIndex(this.state.messages, { uid: message.val().uid });
+            let messageList = this.state.messages;
+            messageList.splice(idx, 1, message.val());
             this.setState({
                 messages: messageList
-            })
-        })
+            });
+        });
         this.messageRef.on('child_removed', (message) => {
-            let idx = _.findIndex(this.state.messages, { uid: message.val().uid })
-            let messageList = this.state.messages
-            messageList.splice(idx, 1)
+            let idx = _.findIndex(this.state.messages, { uid: message.val().uid });
+            let messageList = this.state.messages;
+            messageList.splice(idx, 1);
             this.setState({
                 messages: messageList
-            })
-        })
+            });
+        });
     }
 
     displayUserInfo() {
@@ -142,16 +142,14 @@ class App extends Component {
                         placeholder="email (a@a.com)"
                         onChange={this.onEmailChange}
                         value={this.state.email}
-                        required
-                    />
+                        required />
                     <input
                         type="password"
                         placeholder="password (6 or more chars)"
                         onChange={this.onPasswordChange}
                         value={this.state.password}
                         required
-                        title="atleast 6 chars"
-                    />
+                        title="atleast 6 chars" />
                     <button className="app__button" onClick={this.handleLogIn}>
                         Log In
                     </button>
@@ -159,7 +157,7 @@ class App extends Component {
                         Sign Up
                     </button>
                 </form>
-            )
+            );
         } else {
             return (
                 <span className='user-info'>
@@ -168,7 +166,7 @@ class App extends Component {
                         Logout
                     </button>
                 </span>
-            )
+            );
         }
     }
 
@@ -183,13 +181,14 @@ class App extends Component {
                                 onDelete={this.deleteMessage}
                                 message={ele}
                                 key={idx}
-                                user={this.state.user.email}
-                            />
-                        )
+                                user={this.state.user.email} />
+                        );
                     })}
-                    <FormInput user={this.state.user} onInputSubmit={this.addMessage} />
+                    <FormInput
+                        user={this.state.user}
+                        onInputSubmit={this.addMessage} />
                 </div>
-            )
+            );
     }
 
     render() {
@@ -198,8 +197,7 @@ class App extends Component {
                 <span className='user-info'>React Chat App </span>
                 <a
                     style={{ color: 'blue' }}
-                    href="https://github.com/rblakeman/ChatApp"
-                >
+                    href="https://github.com/rblakeman/ChatApp">
                     GitHub Repo
                 </a>
                 <div className="Authentication">{this.displayUserInfo()}</div>
@@ -209,13 +207,12 @@ class App extends Component {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center'
-                    }}
-                >
+                    }}>
                     {this.displayMessages()}
                 </div>
             </div>
-        )
+        );
     }
 }
 
-export default App
+export default App;

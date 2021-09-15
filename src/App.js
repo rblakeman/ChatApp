@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
-import _ from 'lodash';
 
 import MessageEntry from './components/message-entry';
 import FormInput from './components/form-input';
@@ -116,7 +115,7 @@ class App extends Component {
             }
         });
         this.messageRef.on('child_changed', (message) => {
-            let idx = _.findIndex(this.state.messages, { uid: message.val().uid });
+            let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
             let messageList = this.state.messages;
             messageList.splice(idx, 1, message.val());
             this.setState({
@@ -124,7 +123,7 @@ class App extends Component {
             });
         });
         this.messageRef.on('child_removed', (message) => {
-            let idx = _.findIndex(this.state.messages, { uid: message.val().uid });
+            let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
             let messageList = this.state.messages;
             messageList.splice(idx, 1);
             this.setState({

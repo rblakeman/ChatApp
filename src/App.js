@@ -176,12 +176,12 @@ class App extends Component {
         if (this.state.user)
             return (
                 <div key={'displayMessages'}>
-                    {this.state.messages.map((ele, idx) => {
+                    {this.state.messages.map((message, idx) => {
                         return (
                             <MessageEntry
                                 onEdit={this.updateMessage}
                                 onDelete={this.deleteMessage}
-                                message={ele}
+                                message={message}
                                 key={idx}
                                 user={this.state.user.email} />
                         );

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { NewMessage, User } from '../typings';
+
 const DATE_OPTIONS = {
     hour: 'numeric',
     minute: 'numeric',
@@ -9,12 +11,14 @@ const DATE_OPTIONS = {
     day: 'numeric'
 };
 
-export default function FormInput(props) {
-    const {
-        user,
-        onInputSubmit
-    } = props;
-
+type FormInputProps = {
+    user: User,
+    onInputSubmit: (arg: NewMessage) => void;
+};
+export default function FormInput({
+    user,
+    onInputSubmit
+}: FormInputProps) {
     const [email, setEmail] = useState(user.email || 'Email');
     const [value, setValue] = useState('');
 
@@ -24,11 +28,12 @@ export default function FormInput(props) {
         }
     }, [user]);
 
-    const inputChange = (ev) => {
+    const inputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setValue(ev.target.value);
     };
 
     const submitChange = () => {
+        // @ts-expect-error FIXME
         let currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS);
         let newMessage = {
             timestamp: currTime,
@@ -39,7 +44,7 @@ export default function FormInput(props) {
         setValue('');
     };
 
-    const handleKeyPress = (event) => {
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key !== 'Enter') return;
         event.preventDefault();
         submitChange();

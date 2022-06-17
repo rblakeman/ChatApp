@@ -15,6 +15,7 @@ import {
 
 import MessageEntry from './components/message-entry';
 import FormInput from './components/form-input';
+import { Message, NewMessage, User } from './typings';
 
 const firebaseConfig = {
     apiKey: `${process.env.REACT_APP_FIREBASE_apiKey}`,
@@ -28,8 +29,20 @@ const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 const db = getDatabase(firebase);
 
-class App extends Component {
-    constructor(props) {
+type Props = {
+    tab: string;
+};
+type State = {
+    email: string;
+    password: string;
+    messages: Message[];
+    user: User | null;
+};
+
+class App extends Component<Props, State> {
+    messagesRef: any;
+
+    constructor(props: Props) {
         super(props);
         this.addMessage = this.addMessage.bind(this);
         this.updateMessage = this.updateMessage.bind(this);
@@ -45,19 +58,20 @@ class App extends Component {
                 this.listenMessages();
             }
 
+            // @ts-expect-error IGNORE
             this.setState({ user });
         });
     }
 
-    onEmailChange = (ev) => {
+    onEmailChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ email: ev.target.value });
     };
 
-    onPasswordChange = (ev) => {
+    onPasswordChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ password: ev.target.value });
     };
 
-    handleSignUp = (ev) => {
+    handleSignUp = (ev: React.MouseEvent<HTMLButtonElement>) => {
         createUserWithEmailAndPassword(auth, this.state.email, this.state.password)
             .then(() => {
                 this.listenMessages();
@@ -68,7 +82,7 @@ class App extends Component {
         ev.preventDefault();
     };
 
-    handleLogIn = (ev) => {
+    handleLogIn = (ev: React.MouseEvent<HTMLButtonElement>) => {
         // const provider = new firebase.auth.GoogleAuthProvider()
         // firebase.auth().signInWithPopup(provider)
         signInWithEmailAndPassword(auth, this.state.email, this.state.password)
@@ -79,7 +93,7 @@ class App extends Component {
         ev.preventDefault();
     };
 
-    handleLogOut = (ev) => {
+    handleLogOut = () => {
         signOut(auth)
             .then(() => {
                 // this.handleAuthChange()
@@ -87,7 +101,7 @@ class App extends Component {
             });
     };
 
-    addMessage(newMessage) {
+    addMessage(newMessage: NewMessage) {
         let newPush = push(this.messagesRef);
         newMessage = {
             uid: newPush.key,
@@ -98,16 +112,16 @@ class App extends Component {
         set(ref(db, 'messages/' + newMessage.uid), newMessage);
     }
 
-    updateMessage(updatedMessage) {
+    updateMessage(updatedMessage: Message) {
         set(ref(db, 'messages/' + updatedMessage.uid), updatedMessage);
     }
 
-    deleteMessage(messageId) {
+    deleteMessage(messageId: string | null) {
         remove(ref(db, 'messages/' + messageId));
     }
 
     listenMessages() {
-        const messages = []; // bad lifecycle hygiene
+        const messages: Message[] = []; // bad lifecycle hygiene
         onChildAdded(this.messagesRef, (message) => {
             //limitToLast(10)
             if (message.val()) {
@@ -175,15 +189,15 @@ class App extends Component {
     displayMessages() {
         if (this.state.user)
             return (
-                <div key={'displayMessages'}>
-                    {this.state.messages.map((message, idx) => {
+                <div key='displayMessages'>
+                    {this.state.messages.map((message: Message, idx) => {
                         return (
                             <MessageEntry
                                 onEdit={this.updateMessage}
                                 onDelete={this.deleteMessage}
                                 message={message}
                                 key={idx}
-                                user={this.state.user.email} />
+                                userEmail={this.state.user?.email} />
                         );
                     })}
                     <FormInput

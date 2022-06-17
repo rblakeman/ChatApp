@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { Message } from '../typings';
+
 const styles = {
     container: {
         borderRadius: '20%',
@@ -21,27 +23,30 @@ const styles = {
     }
 };
 
-export default function MessageEntry(props) {
-    const {
-        message,
-        uid,
-        user,
-        onDelete,
-        onEdit
-    } = props;
-
+type MessageEntryProps = {
+    message: Message;
+    userEmail: string | undefined;
+    onDelete: (arg: string | null) => void;
+    onEdit: (arg: Message) => void;
+};
+export default function MessageEntry({
+    message,
+    userEmail = undefined,
+    onDelete,
+    onEdit
+}: MessageEntryProps) {
     const [editing, setEditing] = useState(false);
     const [currentMessage, setCurrentMessage] = useState(message.value);
 
-    const handleEditButton = (ev) => {
+    const handleEditButton = () => {
         setEditing(true);
     };
 
-    const handleDeleteButton = (ev) => {
+    const handleDeleteButton = () => {
         onDelete(message.uid);
     };
 
-    const handleConfirmButton = (ev) => {
+    const handleConfirmButton = () => {
         setEditing(false);
         let updatedMessage = {
             uid: message.uid,
@@ -52,12 +57,12 @@ export default function MessageEntry(props) {
         if (currentMessage) onEdit(updatedMessage);
     };
 
-    const handleCancelButton = (ev) => {
+    const handleCancelButton = () => {
         setEditing(false);
         setCurrentMessage(message.value);
     };
 
-    const handleTextEdit = (ev) => {
+    const handleTextEdit = (ev: React.ChangeEvent<HTMLInputElement>) => {
         setCurrentMessage(ev.target.value);
     };
 
@@ -77,7 +82,7 @@ export default function MessageEntry(props) {
     };
 
     const buttons = () => {
-        if (user === message.email)
+        if (userEmail && userEmail === message.email)
             if (!editing) {
                 return (
                     <span>
@@ -97,12 +102,12 @@ export default function MessageEntry(props) {
 
     return (
         <div
+            // @ts-expect-error FIXME
             style={
-                message.email === user
+                userEmail && message.email === userEmail
                     ? { ...styles.blue, ...styles.container }
                     : { ...styles.green, ...styles.container }
-            }
-            key={uid}>
+            }>
             <div>
                 {message.email + ' said: '}
                 {editTextField()}

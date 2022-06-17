@@ -46,7 +46,7 @@ export default class MessageEntry extends PureComponent {
             email: this.props.message.email,
             value: this.state.message
         };
-        if (this.state.message) this.props.onEdit(updatedMessage); //<-- no id
+        if (this.state.message) this.props.onEdit(updatedMessage);
     };
 
     handleCancelButton = (ev) => {
@@ -92,7 +92,6 @@ export default class MessageEntry extends PureComponent {
     }
 
     render() {
-        // console.log(this.props.message)
         return (
             <div
                 style={

@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import {
     getDatabase,
     onChildAdded, onChildChanged, onChildRemoved,
-    ref, set, push, update, remove
+    ref, set, push, remove
 } from "firebase/database";
 import {
     getAuth,

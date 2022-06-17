@@ -12,7 +12,7 @@ const DATE_OPTIONS = {
 };
 
 type FormInputProps = {
-    user: User,
+    user: User;
     onInputSubmit: (arg: NewMessage) => void;
 };
 export default function FormInput({

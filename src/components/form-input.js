@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const DATE_OPTIONS = {
     hour: 'numeric',
@@ -9,57 +9,54 @@ const DATE_OPTIONS = {
     day: 'numeric'
 };
 
-export default class FormInput extends Component {
-    constructor(props) {
-        super(props);
+export default function FormInput(props) {
+    const {
+        user,
+        onInputSubmit
+    } = props;
 
-        this.state = {
-            email: this.props.user.email || 'Email',
-            value: ''
-        };
-    }
+    const [email, setEmail] = useState(user.email || 'Email');
+    const [value, setValue] = useState('');
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.user) {
-            this.setState({ email: nextProps.user.email });
+    useEffect(() => {
+        if (user) {
+            setEmail(user.email);
         }
-    }
+    }, [user]);
 
-    inputChange = (ev) => {
-        this.setState({ value: ev.target.value });
+    const inputChange = (ev) => {
+        setValue(ev.target.value);
     };
 
-    submitChange = (ev) => {
+    const submitChange = () => {
         let currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS);
         let newMessage = {
             timestamp: currTime,
-            email: this.state.email,
-            value: this.state.value
+            email,
+            value
         };
-        if (this.state.value) this.props.onInputSubmit(newMessage);
-        this.setState({ value: '' });
+        if (value) onInputSubmit(newMessage);
+        setValue('');
     };
 
-    handleKeyPress = (event) => {
+    const handleKeyPress = (event) => {
         if (event.key !== 'Enter') return;
         event.preventDefault();
-        this.submitChange();
+        submitChange();
     };
 
-    render() {
-        return (
-            <div>
-                <form>
-                    <input
-                        placeholder="enter text"
-                        onChange={this.inputChange}
-                        onKeyPress={this.handleKeyPress}
-                        // onSubmit={(ev) => {
-                        //   ev.preventDefault()
-                        // }}
-                        value={this.state.value} />
-                </form>
-            </div>
-        );
-    }
+    return (
+        <div>
+            <form>
+                <input
+                    placeholder="enter text"
+                    onChange={inputChange}
+                    onKeyPress={handleKeyPress}
+                    // onSubmit={(ev) => {
+                    //   ev.preventDefault()
+                    // }}
+                    value={value} />
+            </form>
+        </div>
+    );
 }

@@ -32,11 +32,11 @@ export default class MessageEntry extends PureComponent {
 
     handleEditButton = (ev) => {
         this.setState({ editing: true });
-    }
+    };
 
     handleDeleteButton = (ev) => {
         this.props.onDelete(this.props.message.uid);
-    }
+    };
 
     handleConfirmButton = (ev) => {
         this.setState({ editing: false });
@@ -47,15 +47,15 @@ export default class MessageEntry extends PureComponent {
             value: this.state.message
         };
         if (this.state.message) this.props.onEdit(updatedMessage); //<-- no id
-    }
+    };
 
     handleCancelButton = (ev) => {
         this.setState({ editing: false, message: this.props.message.value });
-    }
+    };
 
     handleTextEdit = (ev) => {
         this.setState({ message: ev.target.value });
-    }
+    };
 
     editTextField = () => {
         if (!this.state.editing) {
@@ -70,7 +70,7 @@ export default class MessageEntry extends PureComponent {
                 </span>
             );
         }
-    }
+    };
 
     buttons() {
         if (this.props.user === this.props.message.email)

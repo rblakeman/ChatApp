@@ -27,7 +27,7 @@ export default class FormInput extends Component {
 
     inputChange = (ev) => {
         this.setState({ value: ev.target.value });
-    }
+    };
 
     submitChange = (ev) => {
         let currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS);
@@ -38,13 +38,13 @@ export default class FormInput extends Component {
         };
         if (this.state.value) this.props.onInputSubmit(newMessage);
         this.setState({ value: '' });
-    }
+    };
 
     handleKeyPress = (event) => {
         if (event.key !== 'Enter') return;
         event.preventDefault();
         this.submitChange();
-    }
+    };
 
     render() {
         return (

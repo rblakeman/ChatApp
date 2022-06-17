@@ -38,11 +38,11 @@ class App extends Component {
 
     onEmailChange = (ev) => {
         this.setState({ email: ev.target.value });
-    }
+    };
 
     onPasswordChange = (ev) => {
         this.setState({ password: ev.target.value });
-    }
+    };
 
     handleSignUp = (ev) => {
         firebase
@@ -55,7 +55,7 @@ class App extends Component {
                 console.log(e);
             });
         ev.preventDefault();
-    }
+    };
 
     handleLogIn = (ev) => {
         // const provider = new firebase.auth.GoogleAuthProvider()
@@ -67,7 +67,7 @@ class App extends Component {
                 this.listenMessages();
             });
         ev.preventDefault();
-    }
+    };
 
     handleLogOut = (ev) => {
         firebase
@@ -77,7 +77,7 @@ class App extends Component {
                 // this.handleAuthChange()
                 this.setState({ email: '', password: '', messages: [], user: null });
             });
-    }
+    };
 
     addMessage(newMessage) {
         let newPush = this.messageRef.push();

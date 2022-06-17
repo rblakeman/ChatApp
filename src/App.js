@@ -1,5 +1,17 @@
 import React, { Component } from 'react';
-import firebase from 'firebase';
+import { initializeApp } from 'firebase/app';
+import {
+    getDatabase,
+    onChildAdded, onChildChanged, onChildRemoved,
+    ref, set, push, update, remove
+} from "firebase/database";
+import {
+    getAuth,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut
+} from "firebase/auth";
 
 import MessageEntry from './components/message-entry';
 import FormInput from './components/form-input';
@@ -12,7 +24,9 @@ const firebaseConfig = {
     storageBucket: `${process.env.REACT_APP_FIREBASE_storageBucket}`,
     messagingSenderId: `${process.env.REACT_APP_FIREBASE_messagingSenderId}`
 };
-firebase.initializeApp(firebaseConfig);
+const firebase = initializeApp(firebaseConfig);
+const auth = getAuth(firebase);
+const db = getDatabase(firebase);
 
 class App extends Component {
     constructor(props) {
@@ -22,16 +36,15 @@ class App extends Component {
         this.deleteMessage = this.deleteMessage.bind(this);
         this.state = { email: '', password: '', messages: [], user: null };
 
-        this.messageRef = firebase
-            .database()
-            .ref()
-            .child('messages');
-
-        this.listenMessages(); //unnecessary?
+        this.messagesRef = ref(db, 'messages');
     }
 
     componentDidMount() {
-        firebase.auth().onAuthStateChanged((user) => {
+        onAuthStateChanged(auth, (user) => {
+            if (user && this.state.messages.length === 0) {
+                this.listenMessages();
+            }
+
             this.setState({ user });
         });
     }
@@ -45,9 +58,7 @@ class App extends Component {
     };
 
     handleSignUp = (ev) => {
-        firebase
-            .auth()
-            .createUserWithEmailAndPassword(this.state.email, this.state.password)
+        createUserWithEmailAndPassword(auth, this.state.email, this.state.password)
             .then(() => {
                 this.listenMessages();
             })
@@ -60,19 +71,16 @@ class App extends Component {
     handleLogIn = (ev) => {
         // const provider = new firebase.auth.GoogleAuthProvider()
         // firebase.auth().signInWithPopup(provider)
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(this.state.email, this.state.password)
+        signInWithEmailAndPassword(auth, this.state.email, this.state.password)
             .then(() => {
+                console.log('handle log in');
                 this.listenMessages();
             });
         ev.preventDefault();
     };
 
     handleLogOut = (ev) => {
-        firebase
-            .auth()
-            .signOut()
+        signOut(auth)
             .then(() => {
                 // this.handleAuthChange()
                 this.setState({ email: '', password: '', messages: [], user: null });
@@ -80,41 +88,36 @@ class App extends Component {
     };
 
     addMessage(newMessage) {
-        let newPush = this.messageRef.push();
+        let newPush = push(this.messagesRef);
         newMessage = {
             uid: newPush.key,
             timestamp: newMessage.timestamp,
             email: newMessage.email,
             value: newMessage.value
         };
-        newPush.set(newMessage);
-        // this.messageRef.push(newMessage)
+        set(ref(db, 'messages/' + newMessage.uid), newMessage);
     }
 
     updateMessage(updatedMessage) {
-        firebase
-            .database()
-            .ref('messages/' + updatedMessage.uid)
-            .set(updatedMessage);
+        set(ref(db, 'messages/' + updatedMessage.uid), updatedMessage);
     }
 
     deleteMessage(messageId) {
-        firebase
-            .database()
-            .ref('messages/' + messageId)
-            .remove();
+        remove(ref(db, 'messages/' + messageId));
     }
 
     listenMessages() {
-        this.messageRef.on('child_added', (message) => {
+        const messages = []; // bad lifecycle hygiene
+        onChildAdded(this.messagesRef, (message) => {
             //limitToLast(10)
             if (message.val()) {
+                messages.push(message.val());
                 this.setState({
-                    messages: [...this.state.messages, message.val()] //Object.values(message.val())
+                    messages: [...messages]
                 });
             }
         });
-        this.messageRef.on('child_changed', (message) => {
+        onChildChanged(this.messagesRef, (message) => {
             let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
             let messageList = this.state.messages;
             messageList.splice(idx, 1, message.val());
@@ -122,7 +125,7 @@ class App extends Component {
                 messages: messageList
             });
         });
-        this.messageRef.on('child_removed', (message) => {
+        onChildRemoved(this.messagesRef, (message) => {
             let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
             let messageList = this.state.messages;
             messageList.splice(idx, 1);

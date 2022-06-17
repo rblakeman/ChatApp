@@ -14,7 +14,7 @@ export default class FormInput extends Component {
         super(props);
 
         this.state = {
-            email: 'Email',
+            email: this.props.user.email || 'Email',
             value: ''
         };
     }

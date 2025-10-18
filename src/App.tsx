@@ -1,37 +1,42 @@
-import React, { Component } from 'react';
 import { initializeApp } from 'firebase/app';
 import {
-    getDatabase,
-    onChildAdded, onChildChanged, onChildRemoved,
-    ref, set, push, remove
-} from "firebase/database";
-import {
+    createUserWithEmailAndPassword,
     getAuth,
     onAuthStateChanged,
-    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    signOut
-} from "firebase/auth";
+    signOut,
+} from 'firebase/auth';
+import {
+    getDatabase,
+    onChildAdded,
+    onChildChanged,
+    onChildRemoved,
+    push,
+    ref,
+    remove,
+    set,
+    type DatabaseReference,
+} from 'firebase/database';
+import React, { Component } from 'react';
 
-import MessageEntry from './components/message-entry';
 import FormInput from './components/form-input';
-import { Message, NewMessage, User } from './typings';
+import MessageEntry from './components/message-entry';
+import type { Message, NewMessage, User } from './typings';
 
 const firebaseConfig = {
-    apiKey: `${process.env.REACT_APP_FIREBASE_apiKey}`,
-    authDomain: `${process.env.REACT_APP_FIREBASE_authDomain}`,
-    databaseURL: `${process.env.REACT_APP_FIREBASE_databaseURL}`,
-    projectId: `${process.env.REACT_APP_FIREBASE_projectId}`,
-    storageBucket: `${process.env.REACT_APP_FIREBASE_storageBucket}`,
-    messagingSenderId: `${process.env.REACT_APP_FIREBASE_messagingSenderId}`
+    apiKey: `${import.meta.env.VITE_FIREBASE_apiKey}`,
+    authDomain: `${import.meta.env.VITE_FIREBASE_authDomain}`,
+    databaseURL: `${import.meta.env.VITE_FIREBASE_databaseURL}`,
+    projectId: `${import.meta.env.VITE_FIREBASE_projectId}`,
+    storageBucket: `${import.meta.env.VITE_FIREBASE_storageBucket}`,
+    messagingSenderId: `${import.meta.env.VITE_FIREBASE_messagingSenderId}`,
 };
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 const db = getDatabase(firebase);
 
-type Props = {
-    tab: string;
-};
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type Props = {};
 type State = {
     email: string;
     password: string;
@@ -40,7 +45,7 @@ type State = {
 };
 
 class App extends Component<Props, State> {
-    messagesRef: any;
+    messagesRef: DatabaseReference;
 
     constructor(props: Props) {
         super(props);
@@ -72,7 +77,11 @@ class App extends Component<Props, State> {
     };
 
     handleSignUp = (ev: React.MouseEvent<HTMLButtonElement>) => {
-        createUserWithEmailAndPassword(auth, this.state.email, this.state.password)
+        createUserWithEmailAndPassword(
+            auth,
+            this.state.email,
+            this.state.password,
+        )
             .then(() => {
                 this.listenMessages();
             })
@@ -85,29 +94,36 @@ class App extends Component<Props, State> {
     handleLogIn = (ev: React.MouseEvent<HTMLButtonElement>) => {
         // const provider = new firebase.auth.GoogleAuthProvider()
         // firebase.auth().signInWithPopup(provider)
-        signInWithEmailAndPassword(auth, this.state.email, this.state.password)
-            .then(() => {
-                console.log('handle log in');
-                this.listenMessages();
-            });
+        signInWithEmailAndPassword(
+            auth,
+            this.state.email,
+            this.state.password,
+        ).then(() => {
+            console.log('handle log in');
+            this.listenMessages();
+        });
         ev.preventDefault();
     };
 
     handleLogOut = () => {
-        signOut(auth)
-            .then(() => {
-                // this.handleAuthChange()
-                this.setState({ email: '', password: '', messages: [], user: null });
+        signOut(auth).then(() => {
+            // this.handleAuthChange()
+            this.setState({
+                email: '',
+                password: '',
+                messages: [],
+                user: null,
             });
+        });
     };
 
     addMessage(newMessage: NewMessage) {
-        let newPush = push(this.messagesRef);
+        const newPush = push(this.messagesRef);
         newMessage = {
             uid: newPush.key,
             timestamp: newMessage.timestamp,
             email: newMessage.email,
-            value: newMessage.value
+            value: newMessage.value,
         };
         set(ref(db, 'messages/' + newMessage.uid), newMessage);
     }
@@ -127,24 +143,28 @@ class App extends Component<Props, State> {
             if (message.val()) {
                 messages.push(message.val());
                 this.setState({
-                    messages: [...messages]
+                    messages: [...messages],
                 });
             }
         });
         onChildChanged(this.messagesRef, (message) => {
-            let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
-            let messageList = this.state.messages;
+            const idx = this.state.messages.findIndex(
+                (msg) => msg.uid === message.val().uid,
+            );
+            const messageList = this.state.messages;
             messageList.splice(idx, 1, message.val());
             this.setState({
-                messages: messageList
+                messages: messageList,
             });
         });
         onChildRemoved(this.messagesRef, (message) => {
-            let idx = this.state.messages.findIndex((msg) => msg.uid === message.val().uid);
-            let messageList = this.state.messages;
+            const idx = this.state.messages.findIndex(
+                (msg) => msg.uid === message.val().uid,
+            );
+            const messageList = this.state.messages;
             messageList.splice(idx, 1);
             this.setState({
-                messages: messageList
+                messages: messageList,
             });
         });
     }
@@ -154,22 +174,28 @@ class App extends Component<Props, State> {
             return (
                 <form>
                     <input
-                        type="text"
-                        placeholder="email (a@a.com)"
+                        type='text'
+                        placeholder='email (a@a.com)'
                         onChange={this.onEmailChange}
                         value={this.state.email}
-                        required />
+                        required
+                    />
                     <input
-                        type="password"
-                        placeholder="password (6 or more chars)"
+                        type='password'
+                        placeholder='password (6 or more chars)'
                         onChange={this.onPasswordChange}
                         value={this.state.password}
                         required
-                        title="atleast 6 chars" />
-                    <button className="app__button" onClick={this.handleLogIn}>
+                        title='atleast 6 chars'
+                    />
+                    <button
+                        className='app__button'
+                        onClick={this.handleLogIn}>
                         Log In
                     </button>
-                    <button className="app_button" onClick={this.handleSignUp}>
+                    <button
+                        className='app_button'
+                        onClick={this.handleSignUp}>
                         Sign Up
                     </button>
                 </form>
@@ -178,7 +204,9 @@ class App extends Component<Props, State> {
             return (
                 <span className='user-info'>
                     {'user: ' + this.state.user.email + ' '}
-                    <button className="app__button" onClick={this.handleLogOut}>
+                    <button
+                        className='app__button'
+                        onClick={this.handleLogOut}>
                         Logout
                     </button>
                 </span>
@@ -197,32 +225,34 @@ class App extends Component<Props, State> {
                                 onDelete={this.deleteMessage}
                                 message={message}
                                 key={idx}
-                                userEmail={this.state.user?.email} />
+                                userEmail={this.state.user?.email}
+                            />
                         );
                     })}
                     <FormInput
                         user={this.state.user}
-                        onInputSubmit={this.addMessage} />
+                        onInputSubmit={this.addMessage}
+                    />
                 </div>
             );
     }
 
     render() {
         return (
-            <div className="App">
+            <div className='App'>
                 <span className='user-info'>React Chat App </span>
                 <a
                     style={{ color: 'blue' }}
-                    href="https://github.com/rblakeman/ChatApp">
+                    href='https://github.com/rblakeman/ChatApp'>
                     GitHub Repo
                 </a>
-                <div className="Authentication">{this.displayUserInfo()}</div>
+                <div className='Authentication'>{this.displayUserInfo()}</div>
                 <br />
                 <div
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center'
+                        alignItems: 'center',
                     }}>
                     {this.displayMessages()}
                 </div>

@@ -11,4 +11,4 @@ export type Message = NewMessage & {
 
 export type User = {
     email: string;
-}
+};

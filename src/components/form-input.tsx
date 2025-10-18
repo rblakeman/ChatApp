@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { NewMessage, User } from '../typings';
+import type { NewMessage, User } from '../typings';
 
 const DATE_OPTIONS = {
     hour: 'numeric',
@@ -8,17 +8,14 @@ const DATE_OPTIONS = {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
 };
 
 type FormInputProps = {
     user: User;
     onInputSubmit: (arg: NewMessage) => void;
 };
-export default function FormInput({
-    user,
-    onInputSubmit
-}: FormInputProps) {
+export default function FormInput({ user, onInputSubmit }: FormInputProps) {
     const [email, setEmail] = useState(user.email || 'Email');
     const [value, setValue] = useState('');
 
@@ -34,11 +31,11 @@ export default function FormInput({
 
     const submitChange = () => {
         // @ts-expect-error FIXME
-        let currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS);
-        let newMessage = {
+        const currTime = new Date().toLocaleDateString('en-US', DATE_OPTIONS);
+        const newMessage = {
             timestamp: currTime,
             email,
-            value
+            value,
         };
         if (value) onInputSubmit(newMessage);
         setValue('');
@@ -54,13 +51,14 @@ export default function FormInput({
         <div>
             <form>
                 <input
-                    placeholder="enter text"
+                    placeholder='enter text'
                     onChange={inputChange}
                     onKeyPress={handleKeyPress}
                     // onSubmit={(ev) => {
                     //   ev.preventDefault()
                     // }}
-                    value={value} />
+                    value={value}
+                />
             </form>
         </div>
     );

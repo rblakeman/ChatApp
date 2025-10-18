@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Message } from '../typings';
+import type { Message } from '../typings';
 
 const styles = {
     container: {
@@ -9,18 +9,18 @@ const styles = {
         margin: '5px',
         display: 'flex',
         flexDirection: 'column',
-        minWidth: '300px'
+        minWidth: '300px',
     },
     blue: {
         backgroundColor: 'blue',
         color: 'white',
-        textAlign: 'right'
+        textAlign: 'right',
     },
     green: {
         backgroundColor: 'green',
         color: 'white',
-        textAlign: 'left'
-    }
+        textAlign: 'left',
+    },
 };
 
 type MessageEntryProps = {
@@ -33,7 +33,7 @@ export default function MessageEntry({
     message,
     userEmail = undefined,
     onDelete,
-    onEdit
+    onEdit,
 }: MessageEntryProps) {
     const [editing, setEditing] = useState(false);
     const [currentMessage, setCurrentMessage] = useState(message.value);
@@ -48,11 +48,11 @@ export default function MessageEntry({
 
     const handleConfirmButton = () => {
         setEditing(false);
-        let updatedMessage = {
+        const updatedMessage = {
             uid: message.uid,
             timestamp: message.timestamp,
             email: message.email,
-            value: currentMessage
+            value: currentMessage,
         };
         if (currentMessage) onEdit(updatedMessage);
     };
@@ -73,9 +73,10 @@ export default function MessageEntry({
             return (
                 <span>
                     <input
-                        type="text"
+                        type='text'
                         onChange={handleTextEdit}
-                        value={currentMessage} />
+                        value={currentMessage}
+                    />
                 </span>
             );
         }
